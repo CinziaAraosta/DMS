@@ -1,0 +1,45 @@
+﻿@page "/downloaddocument"
+@using DMS.Shared.Entities
+@inject HttpClient Http
+
+<PageTitle>Download document</PageTitle>
+
+<h1>Download last report info</h1>
+
+<p>This component allows to retrieve last uploaded report's information.</p>
+
+@if (document == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Type</th>
+                <th>Filename</th>
+                <th>Insert date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@document.Id</td>
+                <td>@document.DocumentType.Name</td>
+                <td>@document.FileName</td>
+                <td>@document.InsertDateTime</td>
+            </tr>
+
+        </tbody>
+    </table>
+}
+
+@code {
+    private Document? document;
+
+    protected override async Task OnInitializedAsync()
+    {
+        document = await Http.GetFromJsonAsync<Document>("Document");
+    }
+}

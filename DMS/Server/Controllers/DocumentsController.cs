@@ -1,4 +1,4 @@
-using DMS.Shared;
+using DMS.Shared.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DMS.Server.Controllers;
@@ -19,14 +19,18 @@ public class DocumentController : ControllerBase
     }
 
     [HttpGet]
-    public IEnumerable<WeatherForecast> Get()
+    public Document? Get()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        return new Document
         {
-            Date = DateTime.Now.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
+            Id = 1, 
+            DocumentType = new DocumentType
+            {
+                Id = 1, 
+                Name = "REPORT"
+            }, 
+            InsertDateTime = DateTime.Now,
+            FileName = "cinzia.png"
+        };
     }
 }
