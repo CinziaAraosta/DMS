@@ -1,9 +1,12 @@
+using uSim.WebUI.Server.Entities;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddSingleton<IDocumentDAL, DocumentDAL>();
 
 var app = builder.Build();
 

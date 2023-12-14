@@ -10,6 +10,8 @@ public interface IDocumentDAL
     List<DocumentType> GetDocumentTypes();
 
     List<Document> GetDocuments();
+
+    Document? GetLastReport();
 }
 
 public class DocumentDAL : IDocumentDAL
