@@ -1,5 +1,6 @@
 ﻿@page "/uploaddocuments"
 @using DMS.Shared.Entities
+@using DMS.Client.Models
 @inject HttpClient Http
 
 <PageTitle>Upload documents</PageTitle>
@@ -17,7 +18,6 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Id</th>
                 <th>Type</th>
                 <th>Filename</th>
                 <th>Insert date</th>
@@ -27,8 +27,7 @@ else
             @foreach (var document in documentsToUpload)
             {
                 <tr>
-                    <td>@document.Id</td>
-                    <td>@document.DocumentType.Name</td>
+                    <td>@document.DocumentTypeName</td>
                     <td>@document.FileName</td>
                     <td>@document.InsertDateTime</td>
                 </tr>
@@ -37,15 +36,66 @@ else
     </table>
 }
 
-<hr/>
+<hr style="height: 5px"/>
 
-<h6>Add a new document to the list</h6>
+<h5><i>Add a new document to the list</i></h5>
+
+<EditForm Model="documentModel" OnValidSubmit="AddNewDocument">
+    <div>
+        <label for="fileName">FileName:</label>
+        <InputFile class="form-control" OnChange="@SelectNewDocument" />
+    </div>
+    <div>
+        <label for="documentTypeName">Document type:</label>
+        @foreach (var item in new[] { "CONTRATTO", "PREVENTIVO", "REPORT" })
+        {
+            <div>
+                <input type="radio" name="type" id="@item" value="@item"
+                       @onchange="RadioSelection"
+                       checked=@(RadioValue.Equals(item, StringComparison.OrdinalIgnoreCase))/>
+                <label for="@item">@item</label>
+            </div>
+        }
+    </div>
+    <button class="btn btn-primary mt-3" type="submit">Add to list</button>
+</EditForm>
 
 @code {
     private List<Document> documentsToUpload = new();
+    private DocumentModel documentModel = new();
+    private DocumentsModel documentsModel = new();
 
     protected override async Task OnInitializedAsync()
     {
-        
+        await Task.CompletedTask;
+    }
+
+    string RadioValue = string.Empty;
+    void RadioSelection(ChangeEventArgs args)
+    {
+        RadioValue = args.Value.ToString();
+        documentModel.DocumentTypeName = RadioValue;
+    }
+
+    private async Task SelectNewDocument(InputFileChangeEventArgs e)
+    {
+        documentModel.Document.FileName = e.File.Name;
+    }
+
+    private async Task AddNewDocument()
+    {
+        if (string.IsNullOrEmpty(documentModel.Document.FileName))
+            return;
+
+        if (string.IsNullOrEmpty(documentModel.DocumentTypeName))
+            return;
+
+        var document = new Document
+        {
+            DocumentTypeName = documentModel.DocumentTypeName,
+            FileName = documentModel.Document.FileName,
+            InsertDateTime = DateTime.Now
+        };
+        documentsToUpload.Add(document);
     }
 }

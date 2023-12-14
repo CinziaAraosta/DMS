@@ -5,6 +5,8 @@ public class Document
     public int Id { get; set; }
     
     public int DocumentTypeId { get; set; }
+    
+    public string DocumentTypeName { get; set; }
 
     public DocumentType DocumentType { get; set; }
 
