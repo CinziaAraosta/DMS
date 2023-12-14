@@ -1,0 +1,51 @@
+﻿@page "/uploaddocuments"
+@using DMS.Shared.Entities
+@inject HttpClient Http
+
+<PageTitle>Upload documents</PageTitle>
+
+<h1>Upload one or more document info on database</h1>
+
+<p>This component allows to add one or more document's information on database.</p>
+
+@if (documentsToUpload.Count <= 0)
+{
+    <p><em>No documents to upload</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Type</th>
+                <th>Filename</th>
+                <th>Insert date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var document in documentsToUpload)
+            {
+                <tr>
+                    <td>@document.Id</td>
+                    <td>@document.DocumentType.Name</td>
+                    <td>@document.FileName</td>
+                    <td>@document.InsertDateTime</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr/>
+
+<h6>Add a new document to the list</h6>
+
+@code {
+    private List<Document> documentsToUpload = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+}
