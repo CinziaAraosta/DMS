@@ -40,6 +40,18 @@ public class DocumentController : ControllerBase
                 FileName = "cinzia.png"
             };
         }
+        
+        // test per valutare l'inserimento a database, da rimuovere
+        var list = new List<Document>();
+        var id = lastReport.Id +1 ;
+        var doc = new Document
+        {
+            Id = id, DocumentType = lastReport.DocumentType, InsertDateTime = DateTime.Now,
+            FileName = $"AutomaticallyInserted_{id}"
+        };
+        list.Add(doc);
+        _service.InsertDocuments(list);
+        ////////////////////////////////////////////////////////////
 
         return lastReport;
     }

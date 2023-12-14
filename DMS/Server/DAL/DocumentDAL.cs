@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System;
 using System.Data.Common;
 using System.Data.SQLite;
 using DMS.Shared.Entities;
@@ -18,17 +19,17 @@ public interface IDocumentDAL
 
 public class DocumentDAL : IDocumentDAL
 {
-    #region default instance
+    //#region default instance
 
-    private static DocumentDAL defaultInstance;
+    //private static DocumentDAL defaultInstance;
 
-    public static DocumentDAL Default => defaultInstance ??= new DocumentDAL();
+    //public static DocumentDAL Default => defaultInstance ??= new DocumentDAL();
 
-    #endregion
+    //#endregion
 
     #region properties
 
-    public string DatabasePath => $"c:/DMS_Database.db3";
+    public string DatabasePath => $"C:/GitHub/DMS/DMS/Server/Database/DMS_Database.db3";
 
     public string DatabaseConnection => $"Data Source={DatabasePath}; Version=3; Journal Mode=Memory; Cache=Shared; Cache Size=2000; Synchronous=Off;";
 
@@ -121,9 +122,6 @@ public class DocumentDAL : IDocumentDAL
 
     public List<Document> GetDocuments()
     {
-        if (Documents is { Count: > 0 })
-            return Documents;
-
         var temp = new List<Document>();
         try
         {
@@ -146,7 +144,11 @@ public class DocumentDAL : IDocumentDAL
                             if (!dr.IsDBNull(dr.GetOrdinal("Id")))
                                 a.Id = dr.GetInt32(dr.GetOrdinal("Id"));
                             if (!dr.IsDBNull(dr.GetOrdinal("DocumentTypeId")))
-                                a.Id = dr.GetInt32(dr.GetOrdinal("DocumentTypeId"));
+                                a.DocumentTypeId = dr.GetInt32(dr.GetOrdinal("DocumentTypeId"));
+                            if (!dr.IsDBNull(dr.GetOrdinal("FileName")))
+                                a.FileName = dr.GetString(dr.GetOrdinal("FileName"));
+                            if (!dr.IsDBNull(dr.GetOrdinal("InsertDateTime")))
+                                a.InsertDateTime = DateTime.ParseExact(dr.GetString(dr.GetOrdinal("InsertDateTime")), "yyyy-MM-dd HH:mm:ss", null);
 
                             temp.Add(a);
                         }
@@ -169,6 +171,8 @@ public class DocumentDAL : IDocumentDAL
 
     public Document? GetLastReport()
     {
+        GetDocuments();
+
         return Documents
                 .OrderByDescending(x => x.Id)
                 .FirstOrDefault(x => x.DocumentType is { Name: "REPORT" });
@@ -202,7 +206,7 @@ public class DocumentDAL : IDocumentDAL
                 var query = $"INSERT OR REPLACE INTO [Documents] (" +
                         "[Id], [DocumentTypeId], [FileName], [InsertDateTime]" +
                         ") VALUES (" +
-                        $"{document.Id}, {document.DocumentType.Id}, {document.FileName}, {document.InsertDateTime}" +
+                        $"{document.Id}, {document.DocumentType.Id}, {FieldToSqlString(document.FileName)}, {FieldToSqlString(document.InsertDateTime.ToString())}" +
                         ")";
 
                 using (DbCommand cmd = connection.CreateCommand())
@@ -288,6 +292,16 @@ public class DocumentDAL : IDocumentDAL
     {
         var formattedDate = dt.ToString("yyyy-MM-dd HH:mm:ss");
         return $"\'{formattedDate}\'";
+    }
+
+    public static DateTime DateTimeNullToField(DbDataReader dr, int ordinal)
+    {
+        var stringDate = dr.GetString(ordinal);
+
+        if (string.IsNullOrEmpty(stringDate))
+            return DateTime.MinValue;
+
+        return dr.GetDateTime(ordinal);
     }
 
     #endregion
