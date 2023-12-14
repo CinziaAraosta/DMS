@@ -9,6 +9,17 @@
 
 <p>This component allows to add one or more document's information on database.</p>
 
+@if (errors.Count > 0)
+{
+    <h4>Errors</h4>
+    <ul class="text-danger">
+        @foreach (var error in errors)
+        {
+            <li>@error</li>
+        }
+    </ul>
+}
+
 @if (documentsToUpload.Count <= 0)
 {
     <p><em>No documents to upload</em></p>
@@ -17,23 +28,26 @@ else
 {
     <table class="table">
         <thead>
-            <tr>
-                <th>Type</th>
-                <th>Filename</th>
-                <th>Insert date</th>
-            </tr>
+        <tr>
+            <th>Type</th>
+            <th>Filename</th>
+            <th>Insert date</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var document in documentsToUpload)
-            {
-                <tr>
-                    <td>@document.DocumentTypeName</td>
-                    <td>@document.FileName</td>
-                    <td>@document.InsertDateTime</td>
-                </tr>
-            }
+        @foreach (var document in documentsToUpload)
+        {
+            <tr>
+                <td>@document.DocumentTypeName</td>
+                <td>@document.FileName</td>
+                <td>@document.InsertDateTime</td>
+            </tr>
+        }
         </tbody>
     </table>
+    <EditForm Model="documentsModel" OnValidSubmit="UploadNewDocuments">
+        <button class="btn btn-primary mt-3" type="submit">Upload on database</button>
+    </EditForm>
 }
 
 <hr style="height: 5px"/>
@@ -64,6 +78,7 @@ else
     private List<Document> documentsToUpload = new();
     private DocumentModel documentModel = new();
     private DocumentsModel documentsModel = new();
+    private List<string> errors = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,6 +99,8 @@ else
 
     private async Task AddNewDocument()
     {
+        errors.Clear();
+
         if (string.IsNullOrEmpty(documentModel.Document.FileName))
             return;
 
@@ -97,5 +114,29 @@ else
             InsertDateTime = DateTime.Now
         };
         documentsToUpload.Add(document);
+    }
+
+    private async Task UploadNewDocuments()
+    {
+        errors.Clear();
+
+        if (documentsToUpload.Count <= 0)
+        {
+            errors.Add("No documents to upload");
+            return;
+        }
+        
+        var report = documentsToUpload.FirstOrDefault(x => x.DocumentTypeName.Equals("REPORT"));
+
+        if (report is null)
+        {
+            errors.Add("Documents to upload need to include at least one report");
+            return;
+        }
+
+        var postBody = new {  };
+
+        using var response = await Http.PostAsJsonAsync("https://localhost:7182/api/Documents", postBody);
+        var success = await response.Content.ReadFromJsonAsync<bool>();
     }
 }

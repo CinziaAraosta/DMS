@@ -43,4 +43,11 @@ public class DocumentController : ControllerBase
 
         return lastReport;
     }
+
+    [HttpPost]
+    public bool Post(List<Document> documents)
+    {
+        var success = _service.InsertDocuments(documents);
+        return success;
+    }
 }

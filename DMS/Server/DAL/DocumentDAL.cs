@@ -12,6 +12,8 @@ public interface IDocumentDAL
     List<Document> GetDocuments();
 
     Document? GetLastReport();
+
+    bool InsertDocuments(List<Document> documents);
 }
 
 public class DocumentDAL : IDocumentDAL
