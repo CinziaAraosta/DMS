@@ -15,10 +15,5 @@
     <ProjectReference Include="..\Shared\DMS.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Database\" />
-    <Folder Include="Entities\" />
-  </ItemGroup>
-
 
 </Project>
